@@ -1,7 +1,8 @@
 import cv2
 import time
+from deepface import DeepFace
 
-def capture_image_with_preview(camera_index=0, image_path="D:\VIT\Fall_Semester_2023-24\HCI\HCIProject\captured\captured_image.jpg"):
+def capture_and_compare(camera_index=0, image_path="D:\VIT\Fall_Semester_2023-24\HCI\HCIProject\captured\captured_image.jpg"):
     # Open the camera
     cap = cv2.VideoCapture(camera_index)
 
@@ -50,5 +51,18 @@ def capture_image_with_preview(camera_index=0, image_path="D:\VIT\Fall_Semester_
 
     print(f"Image captured and saved as {image_path}")
 
-# Call the function to capture an image with a preview (you can specify the camera index if needed)
-capture_image_with_preview()
+    # Perform face recognition using DeepFace
+    try:
+        result = DeepFace.verify("D:\\VIT\\Fall_Semester_2023-24\\HCI\\HCIProject\\userimages\\admin.jpg", image_path)
+
+        # Display the face verification result
+        if result["verified"]:
+            print("Face verification result: True")
+        else:
+            print("Face verification result: False")
+
+    except Exception as e:
+        print("Error during face verification:", str(e))
+
+# Call the function to capture an image with a preview and perform face recognition
+capture_and_compare()
