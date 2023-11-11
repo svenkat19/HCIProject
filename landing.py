@@ -2,20 +2,27 @@ import tkinter as tk
 from tkinter import messagebox
 
 def open_signup_form():
+    global root
+    root.withdraw()  # Hide the root window
     signup_form = tk.Toplevel(root)
-    window_width = 375
-    window_height = 667
     signup_form.title("Signup Form")
 
-    # Create and configure widgets for the signup form
-    # You can add Entry widgets, labels, and other widgets as needed.
+    window_width = 375
+    window_height = 667
 
-    # Example: Entry widget for username
+    # Calculate the position and size of the signup form
     screen_width = signup_form.winfo_screenwidth()
     screen_height = signup_form.winfo_screenheight()
     x_position = (screen_width - window_width) // 2
     y_position = (screen_height - window_height) // 2
+
     signup_form.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+    
+    # Add a Back button in the top-left corner
+    back_button = tk.Button(signup_form, text="Back", command=lambda: show_root(signup_form),
+                            font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
+    back_button.pack(anchor="nw", padx=10, pady=10)
+
     username_label = tk.Label(signup_form, text="Username:")
     username_label.pack()
 
@@ -24,14 +31,20 @@ def open_signup_form():
 
     # Add other widgets for the signup form...
 
+    # Bind the closing event to a function that shows the root window
+    signup_form.protocol("WM_DELETE_WINDOW", lambda: show_root(signup_form))
+
+def show_root(signup_form):
+    global root
+    signup_form.destroy()  # Destroy the signup_form window
+    root.deiconify()  # Show the root window
+
 # Function to handle signup button click
 def signup():
-    #messagebox.showinfo("Signup", "Signup button clicked!")
     open_signup_form()
 
 # Function to handle login button click
 def login():
-    
     messagebox.showinfo("Login", "Login button clicked!")
 
 # Custom size for the window (adjust as needed)
