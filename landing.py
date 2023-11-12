@@ -1,8 +1,26 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkcalendar import Calendar
+import mysql.connector
+from datetime import datetime
+
+# Connect to your MySQL database (replace with your database details)
+db_connection = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="root",
+    database="voter"
+)
+
+# Declare global variables
+username_entry = None
+phone_entry = None
+selected_date_var = None
+password_entry = None
 
 def open_signup_form():
+    global username_entry, phone_entry, selected_date_var, password_entry
+
     root.withdraw()  # Hide the main window
     signup_form = tk.Toplevel(root)
     signup_form.title("Signup Form")
@@ -55,7 +73,7 @@ def open_signup_form():
     password_entry = tk.Entry(signup_form, show="*", font=("Helvetica", 14))
     password_entry.pack(pady=5)
 
-    proceed_button = tk.Button(signup_form, text="Proceed", command=lambda: proceed_signup(signup_form),
+    proceed_button = tk.Button(signup_form, text="Proceed", command=lambda: proceed_signup(signup_form, username_entry.get(), selected_date_var.get(), phone_entry.get(), password_entry.get()),
                                font=("Helvetica", 12), padx=10, pady=5, bg="green", fg="white")
     proceed_button.pack(pady=10)
 
@@ -65,10 +83,46 @@ def open_signup_form():
 
     signup_form.protocol("WM_DELETE_WINDOW", lambda: show_root(signup_form))
 
-def proceed_signup(signup_form):
-    # Add your logic for handling the "Proceed" button click
-    # This function will be called when the user clicks the "Proceed" button in the signup form
-    messagebox.showinfo("Proceed", "Proceed button clicked!")
+def proceed_signup(signup_form, username, dob_str, phone_number, admin_password):
+    # Check if the admin password is correct
+    if admin_password != "admin1234":
+        messagebox.showerror("Failure", "Incorrect admin password.")
+        return
+
+    # Convert the date string to the 'YYYY-MM-DD' format
+    try:
+        dob = datetime.strptime(dob_str, '%m/%d/%y').strftime('%Y-%m-%d')
+    except ValueError:
+        messagebox.showerror("Failure", "Invalid date format. Please use MM/DD/YY.")
+        return
+
+    # Check if the username already exists in the database
+    cursor = db_connection.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        # Username already exists, show failure dialog box
+        messagebox.showerror("Failure", "Username already exists.")
+        signup_form.lift()  # Bring the signup form to the front
+    else:
+        # Username doesn't exist, add user details to the database
+        cursor.execute("INSERT INTO users (username, dob, phone_number) VALUES (%s, %s, %s)",
+                       (username, dob, phone_number))
+        db_connection.commit()
+
+        # Show success dialog box
+        messagebox.showinfo("Success", "User added successfully.")
+
+        # Clear the form
+        clear_signup_form(signup_form)
+
+def clear_signup_form(signup_form):
+    # Clear the form fields
+    username_entry.delete(0, tk.END)
+    phone_entry.delete(0, tk.END)
+    selected_date_var.set("")  # Clear the date
+    password_entry.delete(0, tk.END)
 
 def show_root(signup_form):
     signup_form.destroy()
@@ -87,12 +141,6 @@ def open_calendar(selected_date_var):
     select_button = tk.Button(calendar_window, text="Select", command=on_date_selected,
                               font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
     select_button.pack(pady=10)
-
-def signup():
-    open_signup_form()
-
-def login():
-    messagebox.showinfo("Login", "Login button clicked!")
 
 # Main window (landing page)
 window_width = 375
@@ -113,15 +161,18 @@ button_frame = tk.Frame(root)
 button_frame.pack(fill="both", expand=True)
 
 signup_button = tk.Button(
-    button_frame, text="Signup", command=signup, font=("Helvetica", 12), padx=20, pady=10,
+    button_frame, text="Signup", command=open_signup_form, font=("Helvetica", 12), padx=20, pady=10,
     bg="black", fg="white"
 )
 signup_button.pack(side="top", pady=10)
 
 login_button = tk.Button(
-    button_frame, text="Login", command=login, font=("Helvetica", 12), padx=20, pady=10,
-    bg="black", fg="white"
+    button_frame, text="Login", command=lambda: messagebox.showinfo("Login", "Login button clicked!"),
+    font=("Helvetica", 12), padx=20, pady=10, bg="black", fg="white"
 )
 login_button.pack(side="top", pady=10)
 
 root.mainloop()
+
+# Close the database connection when the application is closed
+db_connection.close()
