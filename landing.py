@@ -33,9 +33,6 @@ def open_signup_form():
     phone_entry.pack(pady=5)
 
     # Additional widgets
-    dob_label = tk.Label(signup_form, text="Date of Birth:", font=("Helvetica", 14))
-    dob_label.pack(pady=5)
-
     additional_widgets_frame = tk.Frame(signup_form)
     selected_date_var = tk.StringVar()
     selected_date_entry = tk.Entry(additional_widgets_frame, textvariable=selected_date_var,
@@ -49,18 +46,29 @@ def open_signup_form():
     selected_date_entry.grid(row=0, column=0, padx=(0, 10))
     open_calendar_button.grid(row=0, column=1)
 
-    
+    dob_label = tk.Label(signup_form, text="Date of Birth:", font=("Helvetica", 14))
+    dob_label.pack(pady=5)
+
     password_label = tk.Label(signup_form, text="Admin Password:", font=("Helvetica", 14))
     password_label.pack(pady=5)
 
     password_entry = tk.Entry(signup_form, show="*", font=("Helvetica", 14))
     password_entry.pack(pady=5)
 
+    proceed_button = tk.Button(signup_form, text="Proceed", command=lambda: proceed_signup(signup_form),
+                               font=("Helvetica", 12), padx=10, pady=5, bg="green", fg="white")
+    proceed_button.pack(pady=10)
+
     back_button = tk.Button(signup_form, text="Back", command=lambda: show_root(signup_form),
                             font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
-    back_button.place(x=10, y=10)  # Place the button in the top-left corner
+    back_button.place(x=10, y=10)  # Place the "Back" button in the top-left corner
 
     signup_form.protocol("WM_DELETE_WINDOW", lambda: show_root(signup_form))
+
+def proceed_signup(signup_form):
+    # Add your logic for handling the "Proceed" button click
+    # This function will be called when the user clicks the "Proceed" button in the signup form
+    messagebox.showinfo("Proceed", "Proceed button clicked!")
 
 def show_root(signup_form):
     signup_form.destroy()
