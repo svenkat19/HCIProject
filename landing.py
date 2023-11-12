@@ -3,6 +3,8 @@ from tkinter import messagebox
 from tkcalendar import Calendar
 import mysql.connector
 from datetime import datetime
+import cv2
+from PIL import Image, ImageTk
 
 # Connect to your MySQL database (replace with your database details)
 db_connection = mysql.connector.connect(
@@ -111,11 +113,11 @@ def proceed_signup(signup_form, username, dob_str, phone_number, admin_password)
                        (username, dob, phone_number))
         db_connection.commit()
 
-        # Show success dialog box
-        messagebox.showinfo("Success", "User added successfully.")
-
         # Clear the form
         clear_signup_form(signup_form)
+
+        # Open the camera preview tab
+        open_camera_preview(username)
 
 def clear_signup_form(signup_form):
     # Clear the form fields
@@ -141,6 +143,45 @@ def open_calendar(selected_date_var):
     select_button = tk.Button(calendar_window, text="Select", command=on_date_selected,
                               font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
     select_button.pack(pady=10)
+
+def open_camera_preview(username):
+    camera_preview = tk.Toplevel(root)
+    camera_preview.title("Camera Preview")
+
+    # Open the camera
+    cap = cv2.VideoCapture(0)
+
+    def capture_image():
+        ret, frame = cap.read()
+        if ret:
+            image_name = f"userimages/{username}.png"
+            cv2.imwrite(image_name, frame)
+            close_camera(cap, camera_preview)
+
+    def update_frame():
+        ret, frame = cap.read()
+        if ret:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = Image.fromarray(frame)
+            img = ImageTk.PhotoImage(img.convert('RGBA'))
+            label.config(image=img)
+            label.image = img
+            camera_preview.after(10, update_frame)
+
+    label = tk.Label(camera_preview)
+    label.pack()
+
+    capture_button = tk.Button(camera_preview, text="Capture Image", command=capture_image,
+                               font=("Helvetica", 12), padx=10, pady=5, bg="green", fg="white")
+    capture_button.pack(pady=10)
+
+    update_frame()
+
+    camera_preview.protocol("WM_DELETE_WINDOW", lambda: close_camera(cap, camera_preview))
+
+def close_camera(cap, camera_preview):
+    cap.release()
+    camera_preview.destroy()
 
 # Main window (landing page)
 window_width = 375
