@@ -83,7 +83,6 @@ def open_signup_form():
     back_button.place(x=10, y=10)  # Place the "Back" button in the top-left corner
 
     signup_form.protocol("WM_DELETE_WINDOW", lambda: show_root(signup_form))
-
 def proceed_signup(signup_form, username, dob_str, phone_number, admin_password):
     # Check if the admin password is correct
     if admin_password != "admin1234":
@@ -185,6 +184,8 @@ def close_camera(cap, camera_preview):
     cap.release()
     camera_preview.destroy()
 
+# ...
+
 def open_login_page():
     # Hide the main window
     root.withdraw()
@@ -194,6 +195,9 @@ def open_login_page():
     login_page.title("Login")
 
     # Set dimensions for the login page
+    window_width, window_height = 375, 667
+    screen_width, screen_height = login_page.winfo_screenwidth(), login_page.winfo_screenheight()
+    x_position, y_position = (screen_width - window_width) // 2, (screen_height - window_height) // 2
     login_page.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
     # Elements for the login page
@@ -213,20 +217,49 @@ def open_login_page():
     proceed_button.pack(pady=10)
 
     # Back button
-    back_button = tk.Button(login_page, text="Back", command=lambda: show_home_page(login_page),
+    back_button = tk.Button(login_page, text="Back", command=lambda: show_root(login_page),
                             font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
     back_button.place(x=10, y=10)  # Place the "Back" button in the top-left corner
 
-    login_page.protocol("WM_DELETE_WINDOW", lambda: show_home_page(login_page))
+    login_page.protocol("WM_DELETE_WINDOW", lambda: show_root(login_page))
+
+# ...
+
 
 def proceed_login(login_page):
     # You can add login functionality here based on the entered username
     username = login_username_entry.get()
-    messagebox.showinfo("Login Success", f"Welcome, {username}!")
 
-def show_home_page(login_page):
-    login_page.destroy()
-    root.deiconify()
+    # Check if the username exists in the database
+    cursor = db_connection.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        # Username found, open a blank page or perform any other action
+        open_blank_page(username)
+    else:
+        # Username not found, show a popup
+        messagebox.showerror("Login Failure", "Username not found.")
+
+def open_blank_page(username):
+    blank_page = tk.Toplevel(root)
+    blank_page.title("Blank Page")
+
+    # Set dimensions for the blank page
+    window_width, window_height = 375, 667
+    screen_width, screen_height = blank_page.winfo_screenwidth(), blank_page.winfo_screenheight()
+    x_position, y_position = (screen_width - window_width) // 2, (screen_height - window_height) // 2
+    blank_page.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+    label = tk.Label(blank_page, text=f"Welcome, {username}!", font=("Helvetica", 14, "bold"), pady=30)
+    label.pack(fill="both", expand=True)
+
+    back_button = tk.Button(blank_page, text="Back", command=blank_page.destroy,
+                            font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
+    back_button.place(x=10, y=10)  # Place the "Back" button in the top-left corner
+
+    blank_page.protocol("WM_DELETE_WINDOW", lambda: blank_page.destroy())
 
 # Main window (landing page)
 window_width, window_height = 375, 667
