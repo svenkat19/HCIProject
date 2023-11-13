@@ -6,7 +6,7 @@ from datetime import datetime
 import cv2
 from PIL import Image, ImageTk
 
-# Connect to your MySQL database (replace with your database details)
+# Connect to the MySQL database (replace with your database details)
 db_connection = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -14,26 +14,23 @@ db_connection = mysql.connector.connect(
     database="voter"
 )
 
-# Declare global variables
-username_entry = None
-phone_entry = None
-selected_date_var = None
-password_entry = None
+# Global variables
+username_entry, phone_entry, selected_date_var, password_entry = None, None, None, None
 
 def open_signup_form():
     global username_entry, phone_entry, selected_date_var, password_entry
 
-    root.withdraw()  # Hide the main window
+    # Hide the main window
+    root.withdraw()
+    
+    # Create the signup form
     signup_form = tk.Toplevel(root)
     signup_form.title("Signup Form")
 
     # Set dimensions for the signup form
-    window_width = 375
-    window_height = 667
-    screen_width = signup_form.winfo_screenwidth()
-    screen_height = signup_form.winfo_screenheight()
-    x_position = (screen_width - window_width) // 2
-    y_position = (screen_height - window_height) // 2
+    window_width, window_height = 375, 667
+    screen_width, screen_height = signup_form.winfo_screenwidth(), signup_form.winfo_screenheight()
+    x_position, y_position = (screen_width - window_width) // 2, (screen_height - window_height) // 2
     signup_form.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
     # Elements for the signup form
@@ -51,7 +48,8 @@ def open_signup_form():
 
     phone_entry = tk.Entry(signup_form, font=("Helvetica", 14))
     phone_entry.pack(pady=5)
-
+    dob_label = tk.Label(signup_form, text="Date of Birth:", font=("Helvetica", 14))
+    dob_label.pack(pady=5)
     # Additional widgets
     additional_widgets_frame = tk.Frame(signup_form)
     selected_date_var = tk.StringVar()
@@ -66,8 +64,7 @@ def open_signup_form():
     selected_date_entry.grid(row=0, column=0, padx=(0, 10))
     open_calendar_button.grid(row=0, column=1)
 
-    dob_label = tk.Label(signup_form, text="Date of Birth:", font=("Helvetica", 14))
-    dob_label.pack(pady=5)
+    
 
     password_label = tk.Label(signup_form, text="Admin Password:", font=("Helvetica", 14))
     password_label.pack(pady=5)
@@ -158,6 +155,9 @@ def open_camera_preview(username):
             cv2.imwrite(image_name, frame)
             close_camera(cap, camera_preview)
 
+            # Display a popup saying "Successfully registered user"
+            messagebox.showinfo("Success", "Successfully registered user")
+
     def update_frame():
         ret, frame = cap.read()
         if ret:
@@ -184,15 +184,12 @@ def close_camera(cap, camera_preview):
     camera_preview.destroy()
 
 # Main window (landing page)
-window_width = 375
-window_height = 667
+window_width, window_height = 375, 667
 root = tk.Tk()
 root.title("Smart Home")
 
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-x_position = (screen_width - window_width) // 2
-y_position = (screen_height - window_height) // 2
+screen_width, screen_height = root.winfo_screenwidth(), root.winfo_screenheight()
+x_position, y_position = (screen_width - window_width) // 2, (screen_height - window_height) // 2
 root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
 title_label = tk.Label(root, text="SMART HOME", font=("Helvetica", 14, "bold"), pady=10)
