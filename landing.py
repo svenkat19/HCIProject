@@ -16,6 +16,7 @@ db_connection = mysql.connector.connect(
 
 # Global variables
 username_entry, phone_entry, selected_date_var, password_entry = None, None, None, None
+login_username_entry = None
 
 def open_signup_form():
     global username_entry, phone_entry, selected_date_var, password_entry
@@ -48,10 +49,10 @@ def open_signup_form():
 
     phone_entry = tk.Entry(signup_form, font=("Helvetica", 14))
     phone_entry.pack(pady=5)
-    dob_label = tk.Label(signup_form, text="Date of Birth:", font=("Helvetica", 14))
-    dob_label.pack(pady=5)
+
     # Additional widgets
     additional_widgets_frame = tk.Frame(signup_form)
+    global selected_date_var
     selected_date_var = tk.StringVar()
     selected_date_entry = tk.Entry(additional_widgets_frame, textvariable=selected_date_var,
                                    state='readonly', font=("Helvetica", 14), width=11)
@@ -64,7 +65,8 @@ def open_signup_form():
     selected_date_entry.grid(row=0, column=0, padx=(0, 10))
     open_calendar_button.grid(row=0, column=1)
 
-    
+    dob_label = tk.Label(signup_form, text="Date of Birth:", font=("Helvetica", 14))
+    dob_label.pack(pady=5)
 
     password_label = tk.Label(signup_form, text="Admin Password:", font=("Helvetica", 14))
     password_label.pack(pady=5)
@@ -183,6 +185,49 @@ def close_camera(cap, camera_preview):
     cap.release()
     camera_preview.destroy()
 
+def open_login_page():
+    # Hide the main window
+    root.withdraw()
+
+    # Create the login page
+    login_page = tk.Toplevel(root)
+    login_page.title("Login")
+
+    # Set dimensions for the login page
+    login_page.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+    # Elements for the login page
+    login_heading = tk.Label(login_page, text="LOGIN", font=("Helvetica", 18, "bold"), pady=30)
+    login_heading.pack()
+
+    global login_username_entry
+    login_username_label = tk.Label(login_page, text="Enter your Username:", font=("Helvetica", 14))
+    login_username_label.pack(pady=50)
+
+    global login_username_entry
+    login_username_entry = tk.Entry(login_page, font=("Helvetica", 14))
+    login_username_entry.pack(pady=20, ipady=3)  # Increase the internal padding (ipady) for vertical centering
+
+    proceed_button = tk.Button(login_page, text="Proceed", command=lambda: proceed_login(login_page),
+                               font=("Helvetica", 12), padx=10, pady=5, bg="green", fg="white")
+    proceed_button.pack(pady=10)
+
+    # Back button
+    back_button = tk.Button(login_page, text="Back", command=lambda: show_home_page(login_page),
+                            font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
+    back_button.place(x=10, y=10)  # Place the "Back" button in the top-left corner
+
+    login_page.protocol("WM_DELETE_WINDOW", lambda: show_home_page(login_page))
+
+def proceed_login(login_page):
+    # You can add login functionality here based on the entered username
+    username = login_username_entry.get()
+    messagebox.showinfo("Login Success", f"Welcome, {username}!")
+
+def show_home_page(login_page):
+    login_page.destroy()
+    root.deiconify()
+
 # Main window (landing page)
 window_width, window_height = 375, 667
 root = tk.Tk()
@@ -205,7 +250,7 @@ signup_button = tk.Button(
 signup_button.pack(side="top", pady=10)
 
 login_button = tk.Button(
-    button_frame, text="Login", command=lambda: messagebox.showinfo("Login", "Login button clicked!"),
+    button_frame, text="Login", command=open_login_page,
     font=("Helvetica", 12), padx=20, pady=10, bg="black", fg="white"
 )
 login_button.pack(side="top", pady=10)
