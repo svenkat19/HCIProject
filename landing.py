@@ -225,6 +225,7 @@ class VoterApp:
                 messagebox.showinfo("Success", "Successfully registered user")
             else:
                 messagebox.showerror("Failure", "Face scan failed. Please try again.")
+            
         except Exception as e:
             print("Error during face verification:", str(e))
 
@@ -266,7 +267,6 @@ class VoterApp:
 
         if existing_user:
             self.curUser = username  # Set curUser when login is successful
-            self.open_blank_page(username)
             self.open_camera_preview_for_login()
         else:
             messagebox.showerror("Login Failure", "Username not found.")
@@ -280,7 +280,7 @@ class VoterApp:
         def capture_image():
             ret, frame = cap.read()
             if ret:
-                image_name = f"captured/{self.curUser}_login.png"
+                image_name = f"D:\\VIT\\Fall_Semester_2023-24\\HCI\\HCIProject\\captured\\{self.curUser}_login.png"
                 cv2.imwrite(image_name, frame)
                 self.close_camera(cap, camera_preview)
                 self.perform_face_verification_for_login(self.curUser, image_name)
@@ -308,11 +308,11 @@ class VoterApp:
 
     def perform_face_verification_for_login(self, username, captured_image_path):
         try:
-            user_image_path = f"userimages/{username}.png"
+            user_image_path = f"D:\\VIT\\Fall_Semester_2023-24\\HCI\\HCIProject\\userimages\\{username}.png"
             result = DeepFace.verify(user_image_path, captured_image_path)
 
             if result["verified"]:
-                messagebox.showinfo("Login Success", "Successfully logged in")
+                self.open_blank_page(username)  # Open the "Welcome User" screen after a successful face scan
             else:
                 messagebox.showerror("Login Failure", "Face scan failed. Please try again.")
         except Exception as e:

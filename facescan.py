@@ -2,7 +2,7 @@ import cv2
 import time
 from deepface import DeepFace
 
-def capture_and_compare(camera_index=0, image_path="D:\VIT\Fall_Semester_2023-24\HCI\HCIProject\captured\captured_image.jpg"):
+def capture_and_compare(camera_index=0, image_path="D:\\VIT\\Fall_Semester_2023-24\\HCI\\HCIProject\\captured\\captured_image.jpg"):
     # Open the camera
     cap = cv2.VideoCapture(camera_index)
 
