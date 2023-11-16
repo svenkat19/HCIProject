@@ -320,20 +320,61 @@ class VoterApp:
     def open_blank_page(self, username):
         blank_page = tk.Toplevel(self.root)
         blank_page.title("Blank Page")
-
         window_width, window_height = 375, 667
         screen_width, screen_height = blank_page.winfo_screenwidth(), blank_page.winfo_screenheight()
         x_position, y_position = (screen_width - window_width) // 2, (screen_height - window_height) // 2
         blank_page.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
-        label = tk.Label(blank_page, text=f"Welcome, {username}!", font=("Helvetica", 14, "bold"), pady=30)
-        label.pack(fill="both", expand=True)
+        # Load background image
+        background_image_path = "D:\\VIT\\Fall_Semester_2023-24\\HCI\\HCIProject\\images\\home.jpg"
+        background_image = Image.open(background_image_path)
+        background_image = background_image.resize((window_width, window_height), Image.ANTIALIAS)
+        background_photo = ImageTk.PhotoImage(background_image)
 
-        back_button = tk.Button(blank_page, text="Back", command=blank_page.destroy,
+        # Set background image
+        background_label = tk.Label(blank_page, image=background_photo)
+        background_label.image = background_photo
+        background_label.place(relwidth=1, relheight=1)
+
+        # Exit button (formerly Close button)
+        exit_button = tk.Button(blank_page, text="Exit", command=self.close_application,
+                                font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
+        exit_button.place(x=10, y=10)  # Place the "Exit" button at the top-left corner
+
+        # Help button
+        help_button = tk.Button(blank_page, text="Help", command=self.open_help_page,
+                                font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
+        help_button.place(x=exit_button.winfo_width() + 300, y=10)  # Place the "Help" button to the right of the "Exit" button
+
+        blank_page.protocol("WM_DELETE_WINDOW", self.close_application)
+
+    def close_application(self):
+        self.root.destroy()
+    def open_help_page(self):
+        help_page = tk.Toplevel(self.root)
+        help_page.title("Help Page")
+
+        window_width, window_height = 375, 667
+        screen_width, screen_height = help_page.winfo_screenwidth(), help_page.winfo_screenheight()
+        x_position, y_position = (screen_width - window_width) // 2, (screen_height - window_height) // 2
+        help_page.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+        # Help content
+        help_content = tk.Label(help_page, text="This is the help page.", font=("Helvetica", 14), pady=30)
+        help_content.pack(fill="both", expand=True)
+
+        # Back button
+        back_button = tk.Button(help_page, text="Back", command=help_page.destroy,
                                 font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
         back_button.place(x=10, y=10)  # Place the "Back" button in the top-left corner
 
-        blank_page.protocol("WM_DELETE_WINDOW", lambda: blank_page.destroy())
+        help_page.protocol("WM_DELETE_WINDOW", lambda: help_page.destroy())
+
+    def logout_and_open_landing_page(self, page_to_close):
+        page_to_close.destroy()
+        self.show_root(self.root)
+
+
 
 # Main application loop
 if __name__ == "__main__":

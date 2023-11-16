@@ -16,7 +16,6 @@ class VoterApp:
         # Global variables
         self.username_entry, self.phone_entry, self.selected_date_var, self.password_entry = None, None, None, None
         self.login_username_entry = None
-        self.curUser = None  # Variable to store the current user
 
         # Main window (landing page)
         self.setup_main_window()
@@ -30,169 +29,88 @@ class VoterApp:
         )
 
     def setup_main_window(self):
-        # ... (unchanged)
+        window_width, window_height = 375, 667
+        screen_width, screen_height = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
+        x_position, y_position = (screen_width - window_width) // 2, (screen_height - window_height) // 2
+        self.root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
-    def open_signup_form(self):
-        # ... (unchanged)
+        title_label = tk.Label(self.root, text="SMART HOME", font=("Helvetica", 14, "bold"), pady=10)
+        title_label.pack(fill="both", expand=True)
 
-    def proceed_signup(self):
-        # ... (unchanged)
+        button_frame = tk.Frame(self.root)
+        button_frame.pack(fill="both", expand=True)
 
-        # Open the camera preview tab
-        self.open_camera_preview(username)
+        signup_button = tk.Button(
+            button_frame, text="Signup", command=self.open_signup_form, font=("Helvetica", 12), padx=20, pady=10,
+            bg="black", fg="white"
+        )
+        signup_button.pack(side="top", pady=10)
 
-    def clear_signup_form(self):
-        # ... (unchanged)
+        login_button = tk.Button(
+            button_frame, text="Login", command=self.open_login_page,
+            font=("Helvetica", 12), padx=20, pady=10, bg="black", fg="white"
+        )
+        login_button.pack(side="top", pady=10)
 
-    def show_root(self, signup_form):
-        signup_form.destroy()
-        self.root.deiconify()
+    # ... (rest of the code remains the same)
 
-    def open_calendar(self, selected_date_var):
-        # ... (unchanged)
-
-    def open_camera_preview(self, username):
-        camera_preview = tk.Toplevel(self.root)
-        camera_preview.title("Camera Preview")
-
-        # Open the camera
-        cap = cv2.VideoCapture(0)
-
-        def capture_image():
-            ret, frame = cap.read()
-            if ret:
-                image_name = f"userimages/{username}.png"
-                cv2.imwrite(image_name, frame)
-                self.close_camera(cap, camera_preview)
-                self.perform_face_verification(username, image_name)
-
-        def update_frame():
-            ret, frame = cap.read()
-            if ret:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                img = Image.fromarray(frame)
-                img = ImageTk.PhotoImage(img.convert('RGBA'))
-                label.config(image=img)
-                label.image = img
-                camera_preview.after(10, update_frame)
-
-        label = tk.Label(camera_preview)
-        label.pack()
-
-        capture_button = tk.Button(camera_preview, text="Capture Image", command=capture_image,
-                                   font=("Helvetica", 12), padx=10, pady=5, bg="green", fg="white")
-        capture_button.pack(pady=10)
-
-        update_frame()
-
-        camera_preview.protocol("WM_DELETE_WINDOW", lambda: self.close_camera(cap, camera_preview))
-
-    def close_camera(self, cap, camera_preview):
-        cap.release()
-        camera_preview.destroy()
-
-    def perform_face_verification(self, username, captured_image_path):
-        try:
-            user_image_path = f"userimages/{username}.png"
-            result = DeepFace.verify(user_image_path, captured_image_path)
-
-            if result["verified"]:
-                messagebox.showinfo("Success", "Successfully registered user")
-            else:
-                messagebox.showerror("Failure", "Face scan failed. Please try again.")
-        except Exception as e:
-            print("Error during face verification:", str(e))
-
-    def open_login_page(self):
-        self.root.withdraw()
-
-        login_page = tk.Toplevel(self.root)
-        login_page.title("Login")
+    def open_blank_page(self, username):
+        blank_page = tk.Toplevel(self.root)
+        blank_page.title("Blank Page")
 
         window_width, window_height = 375, 667
-        screen_width, screen_height = login_page.winfo_screenwidth(), login_page.winfo_screenheight()
+        screen_width, screen_height = blank_page.winfo_screenwidth(), blank_page.winfo_screenheight()
         x_position, y_position = (screen_width - window_width) // 2, (screen_height - window_height) // 2
-        login_page.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+        blank_page.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
-        # ... (unchanged)
+        # Load background image
+        background_image_path = "D:\\VIT\\Fall_Semester_2023-24\\HCI\\HCIProject\\images\\home.jpg"
+        background_image = Image.open(background_image_path)
+        background_image = background_image.resize((window_width, window_height), Image.ANTIALIAS)
+        background_photo = ImageTk.PhotoImage(background_image)
 
-        proceed_button = tk.Button(login_page, text="Proceed", command=self.proceed_login,
-                                   font=("Helvetica", 12), padx=10, pady=5, bg="green", fg="white")
-        proceed_button.pack(pady=10)
+        # Set background image
+        background_label = tk.Label(blank_page, image=background_photo)
+        background_label.image = background_photo
+        background_label.place(relwidth=1, relheight=1)
+
+        # Logout button
+        logout_button = tk.Button(blank_page, text="Logout", command=lambda: self.logout_and_open_landing_page(blank_page),
+                                  font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
+        logout_button.place(relx=0.85, rely=0.05)  # Place the "Logout" button at the top-right corner
+
+        # Help button
+        help_button = tk.Button(blank_page, text="Help", command=self.open_help_page,
+                                font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
+        help_button.place(relx=0.85, rely=0.12)  # Place the "Help" button below the "Logout" button
+
+        blank_page.protocol("WM_DELETE_WINDOW", lambda: self.logout_and_open_landing_page(blank_page))
+
+    def open_help_page(self):
+        help_page = tk.Toplevel(self.root)
+        help_page.title("Help Page")
+
+        window_width, window_height = 375, 667
+        screen_width, screen_height = help_page.winfo_screenwidth(), help_page.winfo_screenheight()
+        x_position, y_position = (screen_width - window_width) // 2, (screen_height - window_height) // 2
+        help_page.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+        # Help content
+        help_content = tk.Label(help_page, text="This is the help page.", font=("Helvetica", 14), pady=30)
+        help_content.pack(fill="both", expand=True)
 
         # Back button
-        back_button = tk.Button(login_page, text="Back", command=lambda: self.show_root(login_page),
+        back_button = tk.Button(help_page, text="Back", command=help_page.destroy,
                                 font=("Helvetica", 12), padx=10, pady=5, bg="black", fg="white")
         back_button.place(x=10, y=10)  # Place the "Back" button in the top-left corner
 
-        login_page.protocol("WM_DELETE_WINDOW", lambda: self.show_root(login_page))
+        help_page.protocol("WM_DELETE_WINDOW", lambda: help_page.destroy())
 
-    def proceed_login(self):
-        username = self.login_username_entry.get()
+    def logout_and_open_landing_page(self, page_to_close):
+        page_to_close.destroy()
+        self.show_root(self.root)
 
-        cursor = self.db_connection.cursor()
-        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
-        existing_user = cursor.fetchone()
-
-        if existing_user:
-            # Save the current user for later use
-            self.curUser = username
-            # Open the camera preview tab for login
-            self.open_camera_preview_for_login()
-        else:
-            messagebox.showerror("Login Failure", "Username not found.")
-
-    def open_camera_preview_for_login(self):
-        camera_preview = tk.Toplevel(self.root)
-        camera_preview.title("Camera Preview - Login")
-
-        # Open the camera
-        cap = cv2.VideoCapture(0)
-
-        def capture_image():
-            ret, frame = cap.read()
-            if ret:
-                image_name = f"captured/{self.curUser}_login.png"
-                cv2.imwrite(image_name, frame)
-                self.close_camera(cap, camera_preview)
-                self.perform_face_verification_for_login(self.curUser, image_name)
-
-        def update_frame():
-            ret, frame = cap.read()
-            if ret:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                img = Image.fromarray(frame)
-                img = ImageTk.PhotoImage(img.convert('RGBA'))
-                label.config(image=img)
-                label.image = img
-                camera_preview.after(10, update_frame)
-
-        label = tk.Label(camera_preview)
-        label.pack()
-
-        capture_button = tk.Button(camera_preview, text="Capture Image", command=capture_image,
-                                   font=("Helvetica", 12), padx=10, pady=5, bg="green", fg="white")
-        capture_button.pack(pady=10)
-
-        update_frame()
-
-        camera_preview.protocol("WM_DELETE_WINDOW", lambda: self.close_camera(cap, camera_preview))
-
-    def perform_face_verification_for_login(self, username, captured_image_path):
-        try:
-            user_image_path = f"userimages/{username}.png"
-            result = DeepFace.verify(user_image_path, captured_image_path)
-
-            if result["verified"]:
-                messagebox.showinfo("Login Success", "Successfully logged in")
-            else:
-                messagebox.showerror("Login Failure", "Face scan failed. Please try again.")
-        except Exception as e:
-            print("Error during face verification:", str(e))
-
-
-    def open_blank_page(self, username):
-        # ... (unchanged)
+    # ... (rest of the code remains the same)
 
 # Main application loop
 if __name__ == "__main__":
