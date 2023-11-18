@@ -51,7 +51,44 @@ class VoterApp:
             font=("Helvetica", 12), padx=20, pady=10, bg="black", fg="white"
         )
         login_button.pack(side="top", pady=10)
+        admin_login_button = tk.Button(
+            button_frame, text="Admin Login", command=self.open_admin_login_page,
+            font=("Helvetica", 12), padx=20, pady=10, bg="black", fg="white"
+        )
+        admin_login_button.pack(side="top", pady=10)
+    def open_admin_login_page(self):
+        admin_login_page = tk.Toplevel(self.root)
+        admin_login_page.title("Admin Login")
 
+        window_width, window_height = 375, 667
+        screen_width, screen_height = admin_login_page.winfo_screenwidth(), admin_login_page.winfo_screenheight()
+        x_position, y_position = (screen_width - window_width) // 2, (screen_height - window_height) // 2
+        admin_login_page.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+        # Admin login page elements
+        admin_password_label = tk.Label(admin_login_page, text="Admin Password:", font=("Helvetica", 14))
+        admin_password_label.pack(pady=10)
+
+        admin_password_entry = tk.Entry(admin_login_page, show="*", font=("Helvetica", 14))
+        admin_password_entry.pack(pady=10)
+
+        proceed_button = tk.Button(admin_login_page, text="Proceed", command=lambda: self.check_admin_password(admin_password_entry.get(), admin_login_page),
+                                   font=("Helvetica", 12), padx=10, pady=5, bg="green", fg="white")
+        proceed_button.pack(pady=10)
+
+    def check_admin_password(self, entered_password, admin_login_page):
+        if entered_password == "admin1234":
+            # Password is correct, open the admin page
+            admin_login_page.destroy()
+            self.open_admin_page()
+        else:
+            # Incorrect password, show a popup
+            messagebox.showerror("Wrong Password", "Incorrect admin password. Please try again.")
+
+    def open_admin_page(self):
+        # You can implement the admin page here with specific functionality
+        # For now, let's just show a message
+        messagebox.showinfo("Admin Page", "Welcome to the Admin Page!")
     def open_signup_form(self):
         self.root.withdraw()
 
